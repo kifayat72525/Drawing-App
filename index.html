@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Drawing App</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        .toolbar {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: #444;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #666;
+        }
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                top: 5px;
+                left: 5px;
+                padding: 5px;
+            }
+            .button {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            .color-picker {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        @media (max-width: 480px) {
+            .toolbar {
+                gap: 5px;
+            }
+            .button {
+                font-size: 10px;
+                padding: 4px 6px;
+            }
+            .color-picker {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button class="button" id="brushTool">Brush</button>
+        <button class="button" id="eraserTool">Eraser</button>
+        <button class="button" id="rectangleTool">Rectangle</button>
+        <button class="button" id="circleTool">Circle</button>
+        <button class="button" id="lineTool">Line</button>
+        <button class="button" id="arrowTool">Arrow</button>
+        <input type="color" class="color-picker" id="colorPicker" value="#ff0000">
+        <button class="button" id="clearCanvas">Clear</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.2/p5.min.js" integrity="sha512-1YMgn4j8cIL91s14ByDGmHtBU6+F8bWOMcF47S0cRO3QNm8SKPNexy4s3OCim9fABUtO++nJMtcpWbINWjMSzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        let tool = "brush";
+        let brushColor = "#ff0000";
+        let startX, startY;
+
+        function setup() {
+            createCanvas(window.innerWidth, window.innerHeight);
+            background(255);
+        }
+
+        function draw() {
+            if (mouseIsPressed && tool === "brush") {
+                noStroke();
+                fill(brushColor);
+                circle(mouseX, mouseY, 30);
+            } else if (tool === "eraser" && mouseIsPressed) {
+                noStroke();
+                fill(255); // Background color
+                circle(mouseX, mouseY, 50);
+            }
+        }
+
+        function mousePressed() {
+            startX = mouseX;
+            startY = mouseY;
+        }
+
+        function mouseReleased() {
+            if (tool === "rectangle") {
+                noFill();
+                stroke(brushColor);
+                rect(startX, startY, mouseX - startX, mouseY - startY);
+            } else if (tool === "circle") {
+                noFill();
+                stroke(brushColor);
+                ellipse(startX, startY, dist(startX, startY, mouseX, mouseY) * 2);
+            } else if (tool === "line") {
+                stroke(brushColor);
+                line(startX, startY, mouseX, mouseY);
+            } else if (tool === "arrow") {
+                stroke(brushColor);
+                line(startX, startY, mouseX, mouseY);
+                push();
+                let angle = atan2(mouseY - startY, mouseX - startX);
+                translate(mouseX, mouseY);
+                rotate(angle);
+                line(0, 0, -10, -5);
+                line(0, 0, -10, 5);
+                pop();
+            }
+        }
+
+        document.getElementById("brushTool").addEventListener("click", () => tool = "brush");
+        document.getElementById("eraserTool").addEventListener("click", () => tool = "eraser");
+        document.getElementById("rectangleTool").addEventListener("click", () => tool = "rectangle");
+        document.getElementById("circleTool").addEventListener("click", () => tool = "circle");
+        document.getElementById("lineTool").addEventListener("click", () => tool = "line");
+        document.getElementById("arrowTool").addEventListener("click", () => tool = "arrow");
+        document.getElementById("colorPicker").addEventListener("input", (event) => brushColor = event.target.value);
+        document.getElementById("clearCanvas").addEventListener("click", () => background(255));
+
+        function windowResized() {
+            resizeCanvas(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>
